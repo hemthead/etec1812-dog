@@ -3,6 +3,7 @@ import time
 
 
 class Servo(object):
+    """A simple servo abstraction that makes it easier to conrol movements"""
     def __init__(self, pin: int):
         """Initialize a servo object
         :param pin: The GPIO pin number that controls the pwm of the servo
