@@ -118,16 +118,21 @@ class Leg(object):
         return res
 
     def move_to_fast(self, target: tuple[float, float]) -> bool:
-        """Move to a given target (using ik) as quickly as possible
+        """Move to a given target (using ik) as quickly as possible. NOTE:
+        Apparently we can't reach close positions because the 2nd servo has to
+        rotate more and counteract the 1st.
         :param target: the target for the leg to move to
         :return: whether the target was reachable
         """
         options = self._inv_kinematics(*target)
 
         if len(options) == 0: return False
-
-        self.servo1.move_to_fast(math.degrees(options[0][0]))
-        self.servo2.move_to_fast(math.degrees(options[0][1]))
+        
+        angle1 = math.degrees(options[0][0])
+        angle2 = math.degrees(options[0][1])
+        
+        self.servo1.move_to_fast(angle1)
+        self.servo2.move_to_fast(angle2)
 
         return True
 
@@ -197,17 +202,3 @@ class DistSensor(object):
         dist = lum_dist / 2
 
         return dist
-
-if __name__ == "__main__":
-    s1 = Servo(0)
-    s2 = Servo(1)
-
-    #serv.pwm.duty_ns(int(1_000_000*0.6))
-    #serv.pwm.duty_ns(int(1_000_000*2.55))
-    
-    p = ik(1,0)
-    
-    print(math.degrees(p[0][0]), math.degrees(p[0][1]))
-    
-    s1.move_to_fast(math.degrees(-p[0][0]))
-    s2.move_to_fast(math.degrees(-p[0][0]))
