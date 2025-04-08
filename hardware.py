@@ -146,7 +146,7 @@ class Leg(object):
 
 class DistSensor(object):
     # measured luminosity of the LED
-    LED_LUMINOSITY = ...
+    LED_LUMINOSITY = 45000
 
     """A sensor that uses an LDR and LED to roughly detect the distance to
     obstacles.
@@ -163,20 +163,22 @@ class DistSensor(object):
         self.led = machine.Pin(led_pin, machine.Pin.OUT)
 
     def read(self):
-        """Read the sensor, returning the distance detected (in meters)"""
+        """Read the sensor, returning the distance detected (very roughly, in
+        a unit about as long as an inch, for some reason).
+        """
         # the length of time to allow the led and ldr to adjust
-        SLEEP_TIME = 0.1
+        SLEEP_TIME = 100
 
         # get the ldr reading for when the led is on
         self.led.on()
         # sleep for a bit to let led and ldr adjust
-        time.sleep(SLEEP_TIME)
+        time.sleep_ms(SLEEP_TIME)
         on = self.ldr.read_u16();
 
         # get the LDR reading for when the LED is off
         self.led.off()
         # sleep for a bit to let LED and LDR adjust
-        time.sleep(SLEEP_TIME)
+        time.sleep_ms(SLEEP_TIME)
         off = self.ldr.read_u16();
 
         # calculate how the LED light affects the reading
@@ -193,12 +195,13 @@ class DistSensor(object):
         # both ways
 
         # somehow measure this
-        flux = ...
+        flux = diff
 
         # I think because the luminosity and flux are both in ADC units, they
         # cancel out and give us meters
-        lum_dist = math.sqrt(LED_LUMINOSITY / (4*math.pi*flux))
+        print(f'flux: {flux}')
+        lum_dist = math.sqrt(self.LED_LUMINOSITY / abs(4*math.pi*flux))
 
-        dist = lum_dist / 2
+        dist = lum_dist
 
         return dist

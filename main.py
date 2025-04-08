@@ -1,11 +1,15 @@
-from hardware import Leg, Servo
+from hardware import DistSensor
+import machine
+import time
 
-s1 = Servo(0)
-s2 = Servo(1)
+l = machine.Pin(0, machine.Pin.OUT)
 
-leg = Leg(s1, 0.5, s2, 0.5)
+l.on()
 
-print(leg.move_to_fast((0.75,0)))
+r = machine.ADC(0)
 
-#s1.move_to_fast(-60)
-#s2.move_to_fast(80)
+sens = DistSensor(0,0)
+
+while True:
+    print(sens.read())
+    time.sleep_ms(10)
