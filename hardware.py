@@ -59,18 +59,26 @@ class Servo(object):
 
 class Leg(object):
     """A simple 2DoF leg"""
-    def __init__(self, servo1: Servo, len1: float, servo2: Servo, len2: float):
+    class Side():
+        Left = 1
+        Right = 0
+    
+    def __init__(self, servo1: Servo, len1: float, servo2: Servo, len2: float,
+                 side: Side):
         """Create a Leg.
         :param servo1: The first (body-most) servo in the leg
         :param len1: The length of the first leg segment (dist between joints)
         :param servo2: The second (knee) servo in the leg
         :param len2: The length of the second leg segment (dist to foot)
+        :param side: The side the leg is on (See Leg.Side)
         """
         self.servo1 = servo1
         self.len1 = len1 
 
         self.servo2 = servo2
         self.len2 = len2
+        
+        self.side = side
 
     # https://osrobotics.org/osr/kinematics/inverse_kinematics.html
     def _inv_kinematics(self, des_x: float, des_y: float) -> list[tuple[float, float]]:
@@ -128,11 +136,19 @@ class Leg(object):
 
         if len(options) == 0: return False
         
-        angle1 = math.degrees(options[0][0])
-        angle2 = math.degrees(options[0][1])
+        # pick an option based on which side the leg is on (so they ultimately
+        # face the same way)
+        option = self.side if len(options) == 2 else 0
+        angle1 = math.degrees(options[option][0])
+        angle2 = math.degrees(options[option][1])
+        
+        # might be trying to go in the wrong direction because of flip?
+        if self.side == Leg.Side.Left: angle2 = angle2
+        
+        offset = 90 if self.side == Leg.Side.Right else 0
         
         self.servo1.move_to_fast(angle1)
-        self.servo2.move_to_fast(angle2)
+        self.servo2.move_to_fast(-angle2+offset)
 
         return True
 
