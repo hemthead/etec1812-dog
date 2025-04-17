@@ -60,11 +60,12 @@ class Servo(object):
 class Leg(object):
     """A simple 2DoF leg"""
     class Side():
-        Left = 1
-        Right = 0
+        type side = int
+        Left: side = 1
+        Right: side = 0
     
     def __init__(self, servo1: Servo, len1: float, servo2: Servo, len2: float,
-                 side: Side):
+                 side: Side.side):
         """Create a Leg.
         :param servo1: The first (body-most) servo in the leg
         :param len1: The length of the first leg segment (dist between joints)
