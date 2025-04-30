@@ -25,7 +25,7 @@ class Servo(object):
 
         self.current_angle = 0
 
-    def move_to_timed(self, angle, time_seconds):
+    def move_to_timed(self, angle: float, time_seconds: float):
         """Move to a given angle over a given amount of time
         (steps in 100ms increments)
         :param angle: angle in degrees for servo to go to
@@ -43,7 +43,7 @@ class Servo(object):
         # ensure that we go to the correct angle
         self.move_to_fast(angle)
 
-    def move_to_fast(self, angle):
+    def move_to_fast(self, angle: float):
         """Move to a given angle as quickly as possible
         :param angle: the angle in degrees for the servo to move to
         """
@@ -60,12 +60,12 @@ class Servo(object):
 class Leg(object):
     """A simple 2DoF leg"""
     class Side():
-        type side = int
+        #type side = int
         Left: side = 1
         Right: side = 0
     
     def __init__(self, servo1: Servo, len1: float, servo2: Servo, len2: float,
-                 side: Side.side):
+                 side):#: Side.side):
         """Create a Leg.
         :param servo1: The first (body-most) servo in the leg
         :param len1: The length of the first leg segment (dist between joints)
@@ -133,6 +133,9 @@ class Leg(object):
         :param target: the target for the leg to move to
         :return: whether the target was reachable
         """
+        if self.side == Leg.Side.Left:
+            target = (target[0], -target[1])
+            
         options = self._inv_kinematics(*target)
 
         if len(options) == 0: return False
@@ -146,10 +149,13 @@ class Leg(object):
         # might be trying to go in the wrong direction because of flip?
         if self.side == Leg.Side.Left: angle2 = angle2
         
-        offset = 90 if self.side == Leg.Side.Right else 0
+        #offset = 90 if self.side == Leg.Side.Right else 0
+        offset = 90 if self.side == Leg.Side.Left else -90
+    
         
         self.servo1.move_to_fast(angle1)
-        self.servo2.move_to_fast(-angle2+offset)
+        #self.servo2.move_to_fast(-angle2+offset)
+        self.servo2.move_to_fast(angle2+offset)
 
         return True
 

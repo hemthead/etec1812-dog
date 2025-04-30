@@ -1,10 +1,40 @@
 <!DOCTYPE html>
 <html>
+  <style>
+  * {
+    font-size: 40pt;
+  }
+  section {
+    border: 1px solid black;
+    padding: 1%;
+  }
+  h1, h2 {
+    margin: 0 0 0.25em 0;
+    border-bottom: 1px solid black;
+  }
+  </style>
   <body>
+    <h1>Dog</h1>
     <section>
       <h2>Actions</h2>
-      <a href="/sit">Sit</a>
-      <a href="/stand">Stand</a>
+      <a href="/sit"><button>Sit</button></a>
+      <a href="/stand"><button>Stand</button></a>
+      <a href="/walk"><button>walk</button></a>
+    </section>
+    <section>
+      <h2>Set Leg</h2>
+      <form action="/set-leg" method="POST">
+        <label for="leg">Leg: </label>
+        <input type="number" id="leg" name="leg" min="0" max="3" />
+
+        <label for="x">Leg x: </label>
+        <input type="range" id="x" name="x" min="0" max="12", step="any" />
+
+        <label for="y">Leg y: </label>
+        <input type="range" id="y" name="y" min="0" max="12", step="any" />
+
+        <input type="submit" value="submit" />
+      </form>
     </section>
   </body>
 </html>
