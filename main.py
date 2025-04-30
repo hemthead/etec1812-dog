@@ -1,6 +1,7 @@
 from hardware import Leg, Servo
 import machine
 import time
+import _thread
 
 leg_fl = Leg(Servo(0), 4, Servo(1), 8, Leg.Side.Left)
 leg_bl = Leg(Servo(2), 4, Servo(3), 8, Leg.Side.Left)
@@ -9,7 +10,8 @@ leg_br = Leg(Servo(6), 4, Servo(7), 8, Leg.Side.Right)
 
 legs = (leg_br, leg_fr, leg_fl, leg_bl)
 
-target = (10,-0.5)
+target = (10.5,-1)
+#target = (12,0)
 leg_br.move_to_fast(target)
 leg_bl.move_to_fast(target)
 leg_fr.move_to_fast(target)
@@ -50,19 +52,8 @@ def jump():
     time.sleep(1)
     stand()
     
-STEP_POSITIONS = (
-    (9.8,4),
-    (10.7,4),
-    (11,5),
-    (11.2,3),
-    (11.2,-1),
-    (11,-2),
-    (11,-3),
-    target,
-    )
-
 raise_x = 8.5
-lower_x = 10.7
+lower_x = 10.8
 extend_y = 3
 STEP_POSITIONS = (
     (raise_x,0),
@@ -78,11 +69,13 @@ def step(leg):
         #time.sleep(0.8)
         time.sleep(0.2)
         
+walking = False
 def walk():
-    while True:
+    while walking:
         for leg in legs:
             step(leg)
             time.sleep(0.5)
+    _thread.exit()
             
 def dance():
     stand()
@@ -164,16 +157,37 @@ def route_sit(req):
     motion2()
     return index_redirect()
 
+@app.route("/lift")
+def route_lift(req):
+    print("lift")
+    motion1()
+    return index_redirect()
+
 @app.route("/stand")
 def route_stand(req):
     print("stand")
-    motion1()
+    stand()
     return index_redirect()
         
-@app.route("/walk")
+@app.route("/start-walking")
 def route_walk(req):
-    print("stand")
-    motion1()
+    global walking
+    walking = True
+    _thread.start_new_thread(walk, ())
+
+    return index_redirect()
+
+@app.route("/stop-walking")
+def route_stop_walk(req):
+    global walking
+    walking = False
+
+    return index_redirect()
+
+@app.route("/dance")
+def route_dance(req):
+    print("dance")
+    dance()
     return index_redirect()
 
 @app.route("/set-leg", methods=["POST"])
@@ -186,18 +200,5 @@ def position_leg(req):
     legs[leg].move_to_fast((x,y))
     return index_redirect()
 
-#print(leg_bl.servo2.current_angle)
-#leg_bl.servo2.move_to_fast(0)
-#leg_fl.servo2.move_to_fast(0)
-
-#motion1()
-
 setup_network()
-#app.run(port=80)
-
-#crouch()
-#walk()
-
-dance()
-
-#legs_goto((12,0))
+app.run(port=80)
